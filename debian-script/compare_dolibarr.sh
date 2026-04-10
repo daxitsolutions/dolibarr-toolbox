@@ -33,6 +33,7 @@ Description:
 
 Options:
   -v <VERSION>         Version Dolibarr cible (ex: 20.0.4)
+  -b <PATH>            Document root Dolibarr local
   -o <OUTPUT_FILE>     Chemin du fichier de sortie diff
   -c, --exclude-custom Exclut htdocs/custom du diff
   --htdocs-only        Compare uniquement le sous-répertoire htdocs
@@ -94,6 +95,12 @@ do
             [ $# -gt 0 ] || die "L'option -v attend une version"
             VERSION="$1"
             ;;
+        -b|--base-dolibarr)
+            opt_name="$1"
+            shift
+            [ $# -gt 0 ] || die "L'option $opt_name attend un chemin"
+            PATH_DOLIBARR_ACTUEL="$1"
+            ;;
         -o|--output)
             opt_name="$1"
             shift
@@ -122,24 +129,44 @@ done
 
 if [ -n "$VERSION" ]
 then
-    [ $# -ge 1 ] || die "Chemin Dolibarr manquant"
-    PATH_DOLIBARR_ACTUEL="$1"
-    if [ -z "$OUTPUT_FILE" ] && [ $# -ge 2 ]
+    if [ -z "$PATH_DOLIBARR_ACTUEL" ]
     then
-        OUTPUT_FILE="$2"
+        [ $# -ge 1 ] || die "Chemin Dolibarr manquant (argument ou -b)"
+        PATH_DOLIBARR_ACTUEL="$1"
+        if [ -z "$OUTPUT_FILE" ] && [ $# -ge 2 ]
+        then
+            OUTPUT_FILE="$2"
+        fi
+    elif [ -z "$OUTPUT_FILE" ] && [ $# -ge 1 ]
+    then
+        OUTPUT_FILE="$1"
     fi
 else
     # Mode historique: <PATH> <VERSION> [EXCLUDE_CUSTOM] [OUTPUT_FILE]
-    [ $# -ge 2 ] || { usage; exit 1; }
-    PATH_DOLIBARR_ACTUEL="$1"
-    VERSION="$2"
-    if [ $# -ge 3 ] && [ "$EXCLUDE_CUSTOM" = "0" ]
+    if [ -z "$PATH_DOLIBARR_ACTUEL" ]
     then
-        EXCLUDE_CUSTOM="$3"
-    fi
-    if [ $# -ge 4 ] && [ -z "$OUTPUT_FILE" ]
-    then
-        OUTPUT_FILE="$4"
+        [ $# -ge 2 ] || { usage; exit 1; }
+        PATH_DOLIBARR_ACTUEL="$1"
+        VERSION="$2"
+        if [ $# -ge 3 ] && [ "$EXCLUDE_CUSTOM" = "0" ]
+        then
+            EXCLUDE_CUSTOM="$3"
+        fi
+        if [ $# -ge 4 ] && [ -z "$OUTPUT_FILE" ]
+        then
+            OUTPUT_FILE="$4"
+        fi
+    else
+        [ $# -ge 1 ] || { usage; exit 1; }
+        VERSION="$1"
+        if [ $# -ge 2 ] && [ "$EXCLUDE_CUSTOM" = "0" ]
+        then
+            EXCLUDE_CUSTOM="$2"
+        fi
+        if [ $# -ge 3 ] && [ -z "$OUTPUT_FILE" ]
+        then
+            OUTPUT_FILE="$3"
+        fi
     fi
 fi
 

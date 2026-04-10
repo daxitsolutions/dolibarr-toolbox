@@ -19,6 +19,9 @@ Script shell pour comparer un Dolibarr local avec une version officielle (tag Gi
 Exemples:
 
 ```sh
+# Compare en passant le document root avec -b
+./compare_dolibarr.sh -v 20.0.4 -b /var/www/dolibarr
+
 # Compare une instance locale complète (racine Dolibarr) avec la même structure du tag
 ./compare_dolibarr.sh -v 20.0.4 /var/www/dolibarr
 
@@ -41,6 +44,7 @@ Exemples:
 ## Options
 
 - `-v <VERSION>`: version Dolibarr cible (ex: `20.0.4`)
+- `-b <PATH>`, `--base-dolibarr <PATH>`: document root Dolibarr local
 - `-o <OUTPUT_FILE>`: fichier de sortie du diff
 - `-c`, `--exclude-custom`: exclut `custom` du diff
 - `--htdocs-only`: force la comparaison uniquement sur `htdocs`
